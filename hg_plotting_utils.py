@@ -1,6 +1,6 @@
 
 # %%
-%matplotlib widget
+#%matplotlib widget
 # %%
 import pickle
 import matplotlib.pyplot as plt
@@ -206,7 +206,7 @@ def plot_intensity_with_profile(img, mesh, ax, show_fwhm=False, xa = 0.0, ya=0.0
 
     return ax, ax_x, ax_y
 
-def plot_intensity(i, m, ax, showColorbar = True, logScale = False, unitStr = 'a.u.'):
+def plot_intensity(i, m, ax, showColorbar = True, logScale = False, unitStr = 'a.u.', inset_extent=None, inset_pos=None):
     if logScale:
         i = np.log10(i, where=i>0)  # Avoid log(0) by setting a minimum value
         
@@ -228,6 +228,15 @@ def plot_intensity(i, m, ax, showColorbar = True, logScale = False, unitStr = 'a
             cbar_labels = [f'$10^{{{tick}}}$' for tick in cbar_ticks]
             cb.set_ticks(cbar_ticks)
             cb.set_ticklabels(cbar_labels)
+
+    if inset_extent is not None and inset_pos is not None:
+        inset_ax = ax.inset_axes(inset_pos, xlim=[inset_extent[0] * lscale_fact, inset_extent[1] * lscale_fact], ylim=[inset_extent[2] * lscale_fact, inset_extent[3] * lscale_fact])
+        inset_ax.imshow(i, cmap='gray', extent=[(m.xStart) * lscale_fact, (m.xFin) * lscale_fact, -m.yFin * lscale_fact, -m.yStart * lscale_fact], vmin = 0 if logScale else i.min(), vmax = None if logScale else i.max())
+        #inset_ax.set_xlabel(f'x [{lscale_str}]')
+        #inset_ax.set_ylabel(f'y [{lscale_str}]')
+        inset_ax.set_xticklabels([])
+        inset_ax.set_yticklabels([])
+        ax.indicate_inset_zoom(inset_ax, edgecolor='black', alpha=0.5)
 
     ax.set_aspect('equal')
     plt.tight_layout()
@@ -439,4 +448,3 @@ if __name__ == "__main__":
 
     plt.show()
 # %%
-
